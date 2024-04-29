@@ -1,0 +1,6 @@
+@Travely_HostAddress = http://localhost:5049
+
+GET {{Travely_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

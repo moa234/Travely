@@ -67,7 +67,7 @@ app.MapGet("/image/{id:int}", (int id, TravelyRepository repository) =>
 {
     var image = repository.GetImage(id);
     return Results.File(image, "image/png");
-}).DisableAntiforgery();
+});
 
 app.Run();
 return;
