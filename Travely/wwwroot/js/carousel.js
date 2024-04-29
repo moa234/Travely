@@ -5,10 +5,8 @@ $('.next-owl').click(function () {
 $('.prev-owl').click(function () {
     $('.owl-carousel').trigger('prev.owl.carousel');
 });
-console.log('asdasda')
 
 document.body.addEventListener('htmx:afterSwap', function (event) {
-    console.log('alooooo')
     $('.owl-carousel').owlCarousel({
         margin: 10,
         items: 4,
