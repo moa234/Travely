@@ -33,6 +33,7 @@ app.MapPost("/upload", async (IFormFile file, [FromForm] string name, TravelyRep
 
     var category = new CategoriesModel
     {
+        Id = Guid.NewGuid().GetHashCode(),
         Name = name,
         Image = memoryStream.ToArray()
     };
@@ -104,6 +105,6 @@ internal class TravelyRepository(string connectionString)
     public void AddCategory(CategoriesModel category)
     {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Execute("INSERT INTO Categories (Name, Image) VALUES (@Name, @Image)", category);
+        connection.Execute("INSERT INTO Categories (Id, Name, Image) VALUES (@Id, @Name, @Image)", category);
     }
 }
