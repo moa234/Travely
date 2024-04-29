@@ -85,9 +85,27 @@ internal class CategoriesModel
     public byte[]? Image { get; init; }
 }
 
-internal class TravelyRepository(string connectionString)
+internal class TravelyRepository
 {
-    private readonly string _connectionString = connectionString;
+    private readonly string _connectionString;
+    
+    public TravelyRepository(string connectionString)
+    {
+        _connectionString = connectionString;
+        CreateDatabaseTable();
+    }
+    private void CreateDatabaseTable()
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Execute(
+            """
+                CREATE TABLE IF NOT EXISTS Categories (
+                Id INTEGER PRIMARY KEY,
+                Name TEXT NOT NULL,
+                Image BLOB NOT NULL
+                )
+            """);
+    }
 
     public IEnumerable<CategoriesModel> GetCategoriesInfo()
     {
@@ -100,7 +118,6 @@ internal class TravelyRepository(string connectionString)
         using var connection = new SqliteConnection(_connectionString);
         return connection.QuerySingle<byte[]>("SELECT Image FROM Categories WHERE Id = @id", new { id });
     }
-
 
     public void AddCategory(CategoriesModel category)
     {
