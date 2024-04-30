@@ -9,8 +9,21 @@ $('.prev-owl').click(function () {
 document.body.addEventListener('htmx:afterSwap', function (event) {
     $('.owl-carousel').owlCarousel({
         margin: 10,
-        items: 4,
-        nav: false
+        nav: false,
+        responsive: {
+            0: {
+                items: 1
+            },
+            425: {
+                items: 2
+            },
+            860: {
+                items: 3
+            },
+            1024: {
+                items: 4
+            }
+        }
     })
 });
 
