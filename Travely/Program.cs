@@ -12,6 +12,7 @@ builder.Services.AddSingleton(new TravelyRepository(connectionString ?? throw ne
 var app = builder.Build();
 app.UseAntiforgery();
 app.UseStaticFiles();
+
 app.MapFallbackToFile("html/page.html");
 
 app.MapGet("/antiforgery", (IAntiforgery antiforgery, HttpContext context) =>
@@ -64,10 +65,27 @@ app.MapGet("/categories", (TravelyRepository repository) =>
     return Results.Content(html, "text/html");
 });
 
+app.MapGet("/categoriesList", (TravelyRepository repository) =>
+{
+    var categories = repository.GetCategoriesInfo();
+    var html = categories.Aggregate("",
+        (current, category) =>
+            current +
+            $"""<li><a class="dropdown-item" hx-delete="/delete/{category.Id}">{category.Name}</a></li>"""
+    );
+    return Results.Content(html, "text/html");
+});
+
 app.MapGet("/image/{id:int}", (int id, TravelyRepository repository) =>
 {
     var image = repository.GetImage(id);
     return Results.File(image, "image/png");
+});
+
+app.MapDelete("/delete/{id:int}", (int id, TravelyRepository repository) =>
+{
+    repository.DeleteCategory(id);
+    return Results.Ok();
 });
 
 app.Run();
@@ -88,12 +106,13 @@ internal class CategoriesModel
 internal class TravelyRepository
 {
     private readonly string _connectionString;
-    
+
     public TravelyRepository(string connectionString)
     {
         _connectionString = connectionString;
         CreateDatabaseTable();
     }
+
     private void CreateDatabaseTable()
     {
         using var connection = new SqliteConnection(_connectionString);
@@ -123,5 +142,11 @@ internal class TravelyRepository
     {
         using var connection = new SqliteConnection(_connectionString);
         connection.Execute("INSERT INTO Categories (Id, Name, Image) VALUES (@Id, @Name, @Image)", category);
+    }
+    
+    public void DeleteCategory(int id)
+    {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Execute("DELETE FROM Categories WHERE Id = @id", new { id });
     }
 }

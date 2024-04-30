@@ -28,8 +28,9 @@ document.body.addEventListener('htmx:afterSwap', function (event) {
 });
 
 document.body.addEventListener('htmx:afterOnLoad', function (event) {
-    if (event.detail.xhr.status >= 200 && event.detail.xhr.status < 300 && event.detail.pathInfo.requestPath === "/upload") {
+    if (event.detail.xhr.status >= 200 && event.detail.xhr.status < 300 && (event.detail.pathInfo.requestPath === "/upload" || event.detail.pathInfo.requestPath.includes("/delete"))) {
         var myModal = bootstrap.Modal.getInstance(document.getElementById('AdminForm'));
         myModal.hide();
+        htmx.ajax('GET', '/categories', {target: '.owl-carousel', swap:'outerHTML'});
     }
 });
