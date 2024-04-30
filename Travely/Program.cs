@@ -54,7 +54,7 @@ app.MapGet("/categories", (TravelyRepository repository) =>
              <div class="item">
                  <div class="rounded-top-circle overflow-hidden ms-4 shadow"
                       style="max-width: 80%">
-                     <img src="/image/{category.Id}" height="300" loading="lazy"/>
+                     <img src="/image/{category.Id}" height="300" loading="lazy" alt="{category.Name}"/>
                  </div>
                  <h2 class="text-center mt-2">{category.Name}</h2>
              </div>
