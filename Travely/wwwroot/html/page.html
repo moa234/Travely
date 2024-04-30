@@ -120,8 +120,8 @@
                         </g>
                     </svg>
                 </span>
-                <label for="searchWhere"></label>
-                <input id="searchWhere" type="text" class="form-control rounded-end-pill" placeholder="Where to?">
+                <input aria-label="Where To" id="searchWhere" 
+                       type="text" class="form-control rounded-end-pill" placeholder="Where to?">
             </div>
             <div class="p-2 flex-grow-1 input-group">
             <span class="input-group-text rounded-start-pill">
@@ -136,8 +136,7 @@
                   </g>
                 </svg>
             </span>
-                <label for="dateWhen"></label>
-                <input id="dateWhen" type="date" class="form-control rounded-end-pill">
+                <input aria-label="Choose date" id="dateWhen" type="date" class="form-control rounded-end-pill">
             </div>
             <div class="p-2 flex-grow-1 input-group">
             <span class="input-group-text rounded-start-pill">
@@ -152,12 +151,9 @@
                   </g>
                 </svg>
             </span>
-                <label for="searchCount"></label>
-                <input id="searchCount" type="number" class="form-control rounded-end-pill" placeholder="How many?">
+                <input aria-label="How many?" id="searchCount" type="number" class="form-control rounded-end-pill" placeholder="How many?">
             </div>
-            <label>
-                <button class="btn btn-primary rounded-pill">Search</button>
-            </label>
+            <button aria-label="Search" class="btn btn-primary rounded-pill">Search</button>
         </div>
     </div>
 
@@ -280,6 +276,7 @@
         </div>
         <div class="col d-flex justify-content-end align-items-center py-3">
             <button id="prev-owl"
+                    aria-label="Previous"
                     onmouseover="this.style.backgroundColor='rgba(206, 219, 67, 0.8)'"
                     onmouseout="this.style.backgroundColor='rgba(0,0,0,0)'"
                     class="btn prev-owl me-1 rounded-circle d-flex justify-content-center align-items-center"
@@ -313,6 +310,7 @@
                 </svg>
             </button>
             <button id="next-owl"
+                    aria-label="Next"
                     class="btn next-owl rounded-circle d-flex justify-content-center align-items-center"
                     onmouseover="this.style.backgroundColor='rgba(206, 219, 67, 0.8)'"
                     onmouseout="this.style.backgroundColor='rgba(0,0,0,0)'"
