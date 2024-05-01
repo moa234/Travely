@@ -31,7 +31,8 @@ app.MapPost("/upload", async (IFormFile file, [FromForm] string name, TravelyRep
     {
         return Results.BadRequest("Invalid file type");
     }
-    using var image = Image.Load(file.OpenReadStream());
+
+    using var image = await Image.LoadAsync(file.OpenReadStream());
     image.Mutate(x => x.Resize(300, 300));
     
     await using var memoryStream = new MemoryStream();
@@ -44,14 +45,14 @@ app.MapPost("/upload", async (IFormFile file, [FromForm] string name, TravelyRep
         Image = memoryStream.ToArray()
     };
 
-    repository.AddCategory(category);
+    await repository.AddCategory(category);
 
     return Results.Ok();
 });
 
-app.MapGet("/categories", (TravelyRepository repository) =>
+app.MapGet("/categories", async (TravelyRepository repository) =>
 {
-    var categories = repository.GetCategoriesInfo();
+    var categories = await repository.GetCategoriesInfo();
     var html = categories.Aggregate("<div class=\"owl-carousel mt-4\">",
         (current, category) =>
             current +
@@ -70,9 +71,9 @@ app.MapGet("/categories", (TravelyRepository repository) =>
     return Results.Content(html, "text/html");
 });
 
-app.MapGet("/categoriesList", (TravelyRepository repository) =>
+app.MapGet("/categoriesList", async (TravelyRepository repository) =>
 {
-    var categories = repository.GetCategoriesInfo();
+    var categories = await repository.GetCategoriesInfo();
     var html = categories.Aggregate("",
         (current, category) =>
             current +
@@ -81,15 +82,15 @@ app.MapGet("/categoriesList", (TravelyRepository repository) =>
     return Results.Content(html, "text/html");
 });
 
-app.MapGet("/image/{id:int}", (int id, TravelyRepository repository) =>
+app.MapGet("/image/{id:int}", async (int id, TravelyRepository repository) =>
 {
-    var image = repository.GetImage(id);
+    var image = await repository.GetImage(id);
     return Results.File(image, "image/webp");
 });
 
-app.MapDelete("/delete/{id:int}", (int id, TravelyRepository repository) =>
+app.MapDelete("/delete/{id:int}", async (int id, TravelyRepository repository) =>
 {
-    repository.DeleteCategory(id);
+    await repository.DeleteCategory(id);
     return Results.Ok();
 });
 
@@ -115,13 +116,13 @@ internal class TravelyRepository
     public TravelyRepository(string connectionString)
     {
         _connectionString = connectionString;
-        CreateDatabaseTable();
+        _ = CreateDatabaseTable();
     }
 
-    private void CreateDatabaseTable()
+    private async Task CreateDatabaseTable()
     {
-        using var connection = new SqliteConnection(_connectionString);
-        connection.Execute(
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.ExecuteAsync(
             """
                 CREATE TABLE IF NOT EXISTS Categories (
                 Id INTEGER PRIMARY KEY,
@@ -131,27 +132,27 @@ internal class TravelyRepository
             """);
     }
 
-    public IEnumerable<CategoriesModel> GetCategoriesInfo()
+    public async Task<IEnumerable<CategoriesModel>> GetCategoriesInfo()
     {
-        using var connection = new SqliteConnection(_connectionString);
-        return connection.Query<CategoriesModel>("SELECT Id, name FROM Categories");
+        await using var connection = new SqliteConnection(_connectionString);
+        return await connection.QueryAsync<CategoriesModel>("SELECT Id, name FROM Categories");
     }
 
-    public byte[] GetImage(int id)
+    public async Task<byte[]> GetImage(int id)
     {
-        using var connection = new SqliteConnection(_connectionString);
-        return connection.QuerySingle<byte[]>("SELECT Image FROM Categories WHERE Id = @id", new { id });
+        await using var connection = new SqliteConnection(_connectionString);
+        return await connection.QuerySingleAsync<byte[]>("SELECT Image FROM Categories WHERE Id = @id", new { id });
     }
 
-    public void AddCategory(CategoriesModel category)
+    public async Task AddCategory(CategoriesModel category)
     {
-        using var connection = new SqliteConnection(_connectionString);
-        connection.Execute("INSERT INTO Categories (Id, Name, Image) VALUES (@Id, @Name, @Image)", category);
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.ExecuteAsync("INSERT INTO Categories (Id, Name, Image) VALUES (@Id, @Name, @Image)", category);
     }
 
-    public void DeleteCategory(int id)
+    public async Task DeleteCategory(int id)
     {
-        using var connection = new SqliteConnection(_connectionString);
-        connection.Execute("DELETE FROM Categories WHERE Id = @id", new { id });
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.ExecuteAsync("DELETE FROM Categories WHERE Id = @id", new { id });
     }
 }
