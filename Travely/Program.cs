@@ -2,6 +2,9 @@ using Dapper;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("TravelyConnection");
@@ -28,10 +31,12 @@ app.MapPost("/upload", async (IFormFile file, [FromForm] string name, TravelyRep
     {
         return Results.BadRequest("Invalid file type");
     }
-
+    using var image = Image.Load(file.OpenReadStream());
+    image.Mutate(x => x.Resize(300, 300));
+    
     await using var memoryStream = new MemoryStream();
-    await file.CopyToAsync(memoryStream);
-
+    image.Save(memoryStream, new WebpEncoder { Quality = 75});
+    
     var category = new CategoriesModel
     {
         Id = Guid.NewGuid().GetHashCode(),
@@ -79,7 +84,7 @@ app.MapGet("/categoriesList", (TravelyRepository repository) =>
 app.MapGet("/image/{id:int}", (int id, TravelyRepository repository) =>
 {
     var image = repository.GetImage(id);
-    return Results.File(image, "image/png");
+    return Results.File(image, "image/webp");
 });
 
 app.MapDelete("/delete/{id:int}", (int id, TravelyRepository repository) =>
@@ -143,7 +148,7 @@ internal class TravelyRepository
         using var connection = new SqliteConnection(_connectionString);
         connection.Execute("INSERT INTO Categories (Id, Name, Image) VALUES (@Id, @Name, @Image)", category);
     }
-    
+
     public void DeleteCategory(int id)
     {
         using var connection = new SqliteConnection(_connectionString);
