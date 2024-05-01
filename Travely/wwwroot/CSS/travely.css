@@ -6,6 +6,23 @@
     margin-top: 80px;
 }
 
+/* roboto-serif-500 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Roboto Serif';
+    font-style: normal;
+    font-weight: 500;
+    src: url('../fonts/roboto-serif-v13-latin-500.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* open-sans-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/open-sans-v40-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
 
 @media (max-width: 768px) { /* Bootstrap's medium breakpoint */
     .bottom-md {
@@ -21,4 +38,6 @@
         flex-basis: 100% !important;
     }
 }
+
+
 
