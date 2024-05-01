@@ -9,7 +9,10 @@ using SixLabors.ImageSharp.Processing;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("TravelyConnection");
 builder.Services.AddAntiforgery();
-builder.Services.AddSingleton(new TravelyRepository(connectionString ?? throw new InvalidOperationException()));
+
+var travelRepository = new TravelyRepository(connectionString ?? string.Empty);
+await travelRepository.CreateDatabaseTable();
+builder.Services.AddSingleton(travelRepository);
 
 
 var app = builder.Build();
@@ -77,7 +80,7 @@ app.MapGet("/categoriesList", async (TravelyRepository repository) =>
     var html = categories.Aggregate("",
         (current, category) =>
             current +
-            $"""<li><a class="dropdown-item" hx-delete="/delete/{category.Id}">{category.Name}</a></li>"""
+            $"""<li><a class="dropdown-item" hx-delete="/delete/{category.Id}" hx-swap="outerHTML">{category.Name}</a></li>"""
     );
     return Results.Content(html, "text/html");
 });
@@ -109,19 +112,11 @@ internal class CategoriesModel
     public byte[]? Image { get; init; }
 }
 
-internal class TravelyRepository
+internal class TravelyRepository(string connectionString)
 {
-    private readonly string _connectionString;
-
-    public TravelyRepository(string connectionString)
+    public async Task CreateDatabaseTable()
     {
-        _connectionString = connectionString;
-        _ = CreateDatabaseTable();
-    }
-
-    private async Task CreateDatabaseTable()
-    {
-        await using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(connectionString);
         await connection.ExecuteAsync(
             """
                 CREATE TABLE IF NOT EXISTS Categories (
@@ -134,25 +129,25 @@ internal class TravelyRepository
 
     public async Task<IEnumerable<CategoriesModel>> GetCategoriesInfo()
     {
-        await using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(connectionString);
         return await connection.QueryAsync<CategoriesModel>("SELECT Id, name FROM Categories");
     }
 
     public async Task<byte[]> GetImage(int id)
     {
-        await using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(connectionString);
         return await connection.QuerySingleAsync<byte[]>("SELECT Image FROM Categories WHERE Id = @id", new { id });
     }
 
     public async Task AddCategory(CategoriesModel category)
     {
-        await using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(connectionString);
         await connection.ExecuteAsync("INSERT INTO Categories (Id, Name, Image) VALUES (@Id, @Name, @Image)", category);
     }
 
     public async Task DeleteCategory(int id)
     {
-        await using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(connectionString);
         await connection.ExecuteAsync("DELETE FROM Categories WHERE Id = @id", new { id });
     }
 }
