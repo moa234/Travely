@@ -1,8 +1,8 @@
-$('.next-owl').click(function () {
+$(document).on('click', '.next-owl', function () {
     $('.owl-carousel').trigger('next.owl.carousel');
 });
 
-$('.prev-owl').click(function () {
+$(document).on('click', '.prev-owl', function () {
     $('.owl-carousel').trigger('prev.owl.carousel');
 });
 
